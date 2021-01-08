@@ -1,3 +1,12 @@
+// maxsus funksiya yasab olamiz u berilgan malumotlarga ko'ra arrayni filterlab kerakli obektlarni topib chiqarib beradi.
+
+var findMovies = function (searchRegex, minimumRating = 0, genre){
+  return movies.filter (function(movie){
+    var doesMatchCategory = genre === `All` || movie.categories.includes(genre);
+
+    return movie.title.match(searchRegex) && movie.imdbRating >= minimumRating && doesMatchCategory;
+  });
+};
 
 
 // DOM ga oid narsalar
@@ -6,7 +15,7 @@ var elSearchForm = $_(`.js-search-form`);
 if (elSearchForm) {
 var elTitleInput = $_(`.js-search-form__title-input`, elSearchForm);
 var elRaitingInput = $_(`.js-search-form__rating-input`, elSearchForm);
-var elGenreInput = $_(`.js-search-form__genre-select`, elSearchForm);
+var elGenreSelect = $_(`.js-search-form__genre-select`, elSearchForm);
 var elSortingSelect = $_(`.js-search-form__sort-select`, elSearchForm);
 };
 
@@ -15,9 +24,9 @@ var elBookmarkedMovies = $_(`.bookmarked-movies`);
 
 var elSearchResults = $_(`.search-results`);
 
-var elSearchResultTemplate = $_(`.#search-result-template`).content;
-var elBookmarkedMovieTemplate = $_(`.#bookmarked-movie-template`).content;
-var elPlaginationItemTemplate = $_(`.#pagination-item-template`).content;
+var elSearchResultTemplate = $_(`#search-result-template`).content;
+var elBookmarkedMovieTemplate = $_(`#bookmarked-movie-template`).content;
+var elPlaginationItemTemplate = $_(`#pagination-item-template`).content;
 
 // DOM yordamchi funksiyalar
 
@@ -35,3 +44,28 @@ var createMovieCard = function (movie) {
 
   return elMovie;
 };
+
+
+var displayMovies = function (movies) {
+  var elMoviesFragment = document.createDocumentFragment();
+  elSearchResults.innerHTML = ``;
+
+  movies.forEach(function(movie) {
+    elMoviesFragment.appendChild(createMovieCard(movie));
+  });
+
+  elSearchResults.appendChild(elMoviesFragment);
+};
+
+
+// Event Listener Hodisaga quloq soluvchi.
+
+elSearchForm.addEventListener (`submit`, function(evt){
+  evt.preventDefault();
+
+  var searchRegex = new RegExp(elTitleInput.value.trim(), `gi`);
+  var minimumRating = Number(elRaitingInput.value);
+  var genre = elGenreSelect.value;
+
+  displayMovies(findMovies(searchRegex, minimumRating, genre));
+});
